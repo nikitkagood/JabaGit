@@ -1,0 +1,7 @@
+void main() {
+    Animal animal = new Animal("New animal name");
+    animal.animalName.sayName();
+
+    RecordAnimal recordAnimal = new RecordAnimal(new AnimalName("Record animal name"));
+    recordAnimal.animalName().sayName();
+}
