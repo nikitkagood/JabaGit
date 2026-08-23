@@ -1,4 +1,0 @@
-{ name: "Leha" bookList: [ {"BookA", 10, 2000}, {"BookB", 15, 2001}, {"BookC", 10, 1990}, {"BookD", 22, 2022}, {"BookE", 8, 2000} ] }
-{ name: "Zhenya" bookList: [ {"BookA", 10, 2000}, {"BookB", 15, 2001}, {"BookC", 10, 1990}, {"BookD", 22, 2022}, {"BookABCD", 150, 1900} ] }
-{ name: "Petya" bookList: [ {"BookA", 10, 2000}, {"BookB", 15, 2001}, {"BookC", 10, 1990}, {"BookD", 22, 2022}, {"BookABCC", 120, 1800} ] }
-{ name: "Lena" bookList: [ {"BookABCDE", 1, 1755}, {"BookB", 15, 2001}, {"BookC", 10, 1990}, {"BookD", 22, 2022}, {"BookE", 8, 2000} ] }
