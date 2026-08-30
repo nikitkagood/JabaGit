@@ -1,31 +1,22 @@
 import java.util.List;
 import java.util.ArrayList;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import Homework1.*;
 import Homework2.*;
 import static Homework2.Book.of;
+import Homework3.*;
+import com.sun.net.httpserver.Request;
 
 void main() {
-    int HOMEWORK_NUMBER = 2;
+    int HOMEWORK_NUMBER = 3;
 
-    switch (HOMEWORK_NUMBER)
-    {
-        case 1 ->
-        {
+    switch (HOMEWORK_NUMBER) {
+        case 1 -> {
             Animal animal = new Animal("New animal name");
             animal.getAnimalName().sayName();
             IO.println(animal);
         }
-        case 2 ->
-        {
+        case 2 -> {
             Path path = Paths.get("src/Homework2/Students.xml");
 
             Student testStudent1 = new Student("Leha", List.of(
@@ -67,17 +58,91 @@ void main() {
                     .peek(IO::println)
                     //.peek(s -> IO.println(s.getBookList()))
                     .peek(s -> s.getBookList())
-                    .flatMap((el) -> { return el.getBookList().stream(); } )
-                    .sorted(Comparator.comparing( Book::getNumberOfPages, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .flatMap((el) -> {
+                        return el.getBookList().stream();
+                    })
+                    .sorted(Comparator.comparing(Book::getNumberOfPages, Comparator.nullsLast(Comparator.naturalOrder())))
                     .distinct()
-                    .filter((b) -> {return b.getReleaseYear() != null && b.getReleaseYear() > 2000; } )
+                    .filter((b) -> {
+                        return b.getReleaseYear() != null && b.getReleaseYear() > 2000;
+                    })
                     .limit(3)
                     .map(Book::getReleaseYear)
                     .findAny()
-                    .ifPresentOrElse(IO::println, () -> System.out.println("The book doesn't have a valid ReleaseYear") );
+                    .ifPresentOrElse(IO::println, () -> System.out.println("The book doesn't have a valid ReleaseYear"));
         }
+        case 3 -> {
+            IO.println("Strategy");
+
+            PaymentContext payment1 = new PaymentContext("somewhere", 30);
+            payment1.setPaymentStrategy(new OnlineServicePayment("PayPal", "a1B3c45dE67"));
+            payment1.checkStatus();
+            payment1.makePayment();
+
+            PaymentContext payment2 = new PaymentContext("somewhere else", 20);
+            payment2.checkStatus();
+            payment2.setPaymentStrategy(new CardPayment("1111-1111-1111-1111", 123));
+            payment2.makePayment();
+
+
+            IO.println("\n" + "CoR");
+
+            Window window = new Window();
+            Panel panel = new Panel(window);
+            Button button = new Button(panel);
+
+            UICommonInterface.UIRequest dummyRequest = new UICommonInterface.UIRequest();
+            panel.doesHandle = true;
+            button.handle(dummyRequest);
+
+            IO.println("\n" + "Builder");
+
+            VehicleBuilder vb = new VehicleBuilder("Just a car");
+            vb.setFrame("Some frame");
+            vb.setEngine("Some engine");
+            vb.setWheels(4);
+            Vehicle v = vb.getObject();
+            IO.println(v);
+
+
+            IO.println("\n" + "Proxy");
+
+            DataBase db = new DataBase(List.of(
+                    Map.entry("Request1", "Response1_AAA"),
+                    Map.entry("Request2", "Response2_BBB"),
+                    Map.entry("Request3", "Response3"),
+                    Map.entry("Request4", "Response4")
+            ));
+
+            ProxyDataBaseQueue proxyDb = new ProxyDataBaseQueue(db);
+
+            StringBuilder str1 = new StringBuilder();
+            StringBuilder str2 = new StringBuilder();
+
+            proxyDb.makeRequest("Request1", str1);
+            proxyDb.makeRequest("Request2", str2);
+            proxyDb.executeQueue();
+
+            IO.println(str1.toString());
+            IO.println(str2.toString());
+
+
+            IO.println("\n" + "Decorator");
+
+            UsualNotify notify = new UsualNotify("SomeNotify");
+            SMSNotify smsNotify = new SMSNotify(notify, "OtherNotify");
+            smsNotify.sendNotify();
+
+            IO.println("\n" + "Adapter");
+
+            PicturePainter pp = new PicturePainter();
+
+            SimplePicture sp = new SimplePicture("PictureData");
+            ComplexPicture cp = new ComplexPicture(sp);
+
+            pp.paintPicture(cp); //only accepts complex pictures
+        }
+
+
     }
-
-
-
 }
