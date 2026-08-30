@@ -39,7 +39,7 @@ public class StudentParser {
                     title.appendChild(doc.createTextNode(book.getBookName()));
                     bookNode.appendChild(title);
 
-                    if (book.getReleaseYear() != null) {
+                    if (book.getNumberOfPages() != null) {
                         Element year = doc.createElement("numberOfPages");
                         year.appendChild(doc.createTextNode(book.getNumberOfPages().toString()));
                         bookNode.appendChild(year);
@@ -55,9 +55,9 @@ public class StudentParser {
                 }
             }
 
-            // Запись структуры в файл
+            //Write structure to a file
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            // Делает XML красивым с отступами
+            //Makes XML with indentation
             transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(path.toString()));
