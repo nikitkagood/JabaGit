@@ -8,7 +8,7 @@ import Homework3.*;
 import com.sun.net.httpserver.Request;
 
 void main() {
-    int HOMEWORK_NUMBER = 3;
+    int HOMEWORK_NUMBER = 4;
 
     switch (HOMEWORK_NUMBER) {
         case 1 -> {
@@ -142,7 +142,129 @@ void main() {
 
             pp.paintPicture(cp); //only accepts complex pictures
         }
+        case 4 ->
+        {
+            class Deadlock {
+                public synchronized void deadlockExample(Deadlock other) {
+                    IO.println("Print something");
 
+                    //to avoid StackOverflow even before deadlock
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    other.deadlockExample(this);
+                }
+            }
+
+            Deadlock dl1 = new Deadlock();
+            Deadlock dl2 = new Deadlock();
+
+            Thread th_dl1 = new Thread(() -> dl1.deadlockExample(dl2));
+            Thread th_dl2 = new Thread(() -> dl2.deadlockExample(dl1));
+
+            //th_dl1.start();
+            //th_dl2.start();
+
+
+            //Livelock
+            ReentrantLock lock = new ReentrantLock();
+
+            Runnable task_ll = () -> {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+
+                        IO.println("Prepare to work");
+
+                        if(lock.tryLock())
+                        {
+                            lock.lock();
+
+                            Thread.sleep(10);
+                            IO.println("\n\n" + "ACTUALLY WORK" + "\n\n");
+
+
+                            lock.unlock();
+                        }
+                    }
+
+
+                }
+                catch (IllegalThreadStateException e) {
+                    System.err.println(e.getMessage());
+                }
+                catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
+                }
+            };
+
+
+
+            Thread th_ll1 = new Thread(task_ll);
+            Thread th_ll2 = new Thread(task_ll);
+
+//            th_ll1.start();
+//            th_ll2.start();
+
+
+            //Synchronized 1 - 2
+            Semaphore semaphore = new Semaphore(1, true);
+
+            Runnable task1 = () -> {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        semaphore.acquire();
+                        IO.println("1");
+                        Thread.sleep(400);
+                        semaphore.release();
+                    }
+
+                }
+                catch (IllegalThreadStateException e) {
+                    System.err.println(e.getMessage());
+                }
+                catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
+                }
+                finally {
+                    if(semaphore.availablePermits() <= 0) {
+                        semaphore.release();
+                    }
+                }
+            };
+
+            Runnable task2 = () -> {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        semaphore.acquire();
+                        IO.println("2");
+                        semaphore.release();
+                    }
+                }
+                catch (IllegalThreadStateException e) {
+                    System.err.println(e.getMessage());
+                }
+                catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
+                }
+                finally {
+                    if(semaphore.availablePermits() <= 0) {
+                        semaphore.release();
+                    }
+                }
+            };
+
+            Thread th1 = new Thread(task1);
+            Thread th2 = new Thread(task2);
+
+//           th1.start();
+//           th2.start();
+
+
+        }
 
     }
 }
