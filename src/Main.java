@@ -5,7 +5,7 @@ import Homework1.*;
 import Homework2.*;
 import static Homework2.Book.of;
 import Homework3.*;
-import com.sun.net.httpserver.Request;
+
 
 void main() {
     int HOMEWORK_NUMBER = 4;
@@ -169,57 +169,59 @@ void main() {
             //th_dl1.start();
             //th_dl2.start();
 
+            class Livelock
+            {
+                public static void livelockExample(ReentrantLock primaryLock, ReentrantLock secondaryLock) {
+                    while (true) {
+                        primaryLock.lock();
+                        IO.println("Locked Primary");
 
-            //Livelock
-            ReentrantLock lock = new ReentrantLock();
-
-            Runnable task_ll = () -> {
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-
-                        IO.println("Prepare to work");
-
-                        if(lock.tryLock())
-                        {
-                            lock.lock();
-
+                        try {
                             Thread.sleep(10);
-                            IO.println("\n\n" + "ACTUALLY WORK" + "\n\n");
+                        } catch (InterruptedException e) {
+                            System.err.println(e.getMessage());
+                        }
 
+                        if (secondaryLock.tryLock()) {
+                            IO.println("Both locks, work end");
 
-                            lock.unlock();
+                            secondaryLock.unlock();
+                            primaryLock.unlock();
+
+                            return;
+                        }
+                        else
+                        {
+                            IO.println("Couldn't take Secondary lock, freeing 1st");
+                            primaryLock.unlock();
+                        }
+
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            System.err.println(e.getMessage());
                         }
                     }
-
-
                 }
-                catch (IllegalThreadStateException e) {
-                    System.err.println(e.getMessage());
-                }
-                catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
-                }
-            };
+            }
 
+            ReentrantLock rl1 = new ReentrantLock();
+            ReentrantLock rl2 = new ReentrantLock();
 
-
-            Thread th_ll1 = new Thread(task_ll);
-            Thread th_ll2 = new Thread(task_ll);
-
-//            th_ll1.start();
-//            th_ll2.start();
-
+            new Thread(() -> {Livelock.livelockExample(rl1, rl2);}).start();
+            new Thread(() -> {Livelock.livelockExample(rl2, rl1);}).start();
 
             //Synchronized 1 - 2
-            Semaphore semaphore = new Semaphore(1, true);
+            Semaphore sm1 = new Semaphore(1);
+            Semaphore sm2 = new Semaphore(0);
 
             Runnable task1 = () -> {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
-                        semaphore.acquire();
+                        sm1.acquire();
                         IO.println("1");
-                        Thread.sleep(400);
-                        semaphore.release();
+                        //Thread.sleep(400);
+                        sm2.release();
                     }
 
                 }
@@ -228,20 +230,15 @@ void main() {
                 }
                 catch (InterruptedException e) {
                     System.err.println(e.getMessage());
-                }
-                finally {
-                    if(semaphore.availablePermits() <= 0) {
-                        semaphore.release();
-                    }
                 }
             };
 
             Runnable task2 = () -> {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
-                        semaphore.acquire();
+                        sm2.acquire();
                         IO.println("2");
-                        semaphore.release();
+                        sm1.release();
                     }
                 }
                 catch (IllegalThreadStateException e) {
@@ -249,11 +246,6 @@ void main() {
                 }
                 catch (InterruptedException e) {
                     System.err.println(e.getMessage());
-                }
-                finally {
-                    if(semaphore.availablePermits() <= 0) {
-                        semaphore.release();
-                    }
                 }
             };
 
